@@ -1,0 +1,59 @@
+<resources>
+    <string name="app_name">VeilType</string>
+    <string name="accessibility_description">Detects when the on-screen keyboard opens and places your chosen privacy shade above it. VeilType does not read, store, or transmit screen or typed content.</string>
+    <string name="dismiss_control">Hide control until the keyboard reopens</string>
+    <string name="control_veil">VEIL</string>
+    <string name="control_off">OFF</string>
+    <string name="notification_channel">Privacy veil</string>
+    <string name="notification_title">VeilType is armed</string>
+    <string name="notification_body">Open a keyboard to use the veil, or cover the whole screen.</string>
+    <string name="whole_screen">Veil screen</string>
+    <string name="disarm">Disarm</string>
+    <string name="tile_arm">VeilType</string>
+    <string name="tile_screen">Veil screen</string>
+    <string name="brand">VEILTYPE</string>
+    <string name="walk_title_1">A little privacy, wherever you type.</string>
+    <string name="walk_title_2">Peek when you need to.</string>
+    <string name="walk_title_3">Let your apps do the remembering.</string>
+    <string name="walk_body_1">A small control appears with your keyboard. Tap it to cover the screen above your keys.</string>
+    <string name="walk_body_2">Touch and hold the veil to see underneath; release to cover it again. You can also let touches pass through.</string>
+    <string name="walk_body_3">Choose apps to veil automatically, skip, or cover completely. Your choices stay on this device.</string>
+    <string name="next">Next</string><string name="get_started">Set up VeilType</string>
+    <string name="setup">Setup</string><string name="tuning">Tuning</string>
+    <string name="setup_title">Privacy, within reach.</string>
+    <string name="setup_body">Set up the veil once, then bring it up whenever you need a little space.</string>
+    <string name="permissions">Access</string><string name="overlay_title">Display over other apps</string>
+    <string name="overlay_detail">Lets VeilType place the cover and control above other apps.</string>
+    <string name="keyboard_title">Keyboard awareness</string><string name="keyboard_detail">Detects the keyboard and foreground app without reading their content.</string>
+    <string name="ready">Ready</string><string name="allow">Allow</string><string name="open">Open</string>
+    <string name="notifications_title">Notifications</string><string name="notifications_detail">Provides controls while VeilType is armed.</string>
+    <string name="protection">Protection</string><string name="armed">Veil armed</string><string name="arm">Arm the veil</string>
+    <string name="armed_detail">Open a keyboard to find the control.</string><string name="arm_detail">Runs quietly until you need it.</string>
+    <string name="restart_hint">The service is stopped. Turn it on again when access is ready.</string>
+    <string name="try_title">Try it here</string><string name="try_body">Arm the veil, tap the field, then use the control on your keyboard.</string><string name="try_placeholder">Write something private…</string>
+    <string name="privacy">Your privacy</string><string name="privacy_body">VeilType works offline. Accessibility access observes keyboard window bounds and the foreground app for your rules. It never reads screen or typed text. Preferences, app rules and your chosen photo reference stay on this device. A veil is a visual aid, not protection against screenshots or cameras.</string>
+    <string name="replay">Replay walkthrough</string><string name="support">If the control does not appear, check both access settings and your device’s background restrictions.</string>
+    <string name="tuning_title">Make it yours.</string><string name="tuning_body">Adjust the veil, its control, and where it appears.</string>
+    <string name="veil_appearance">Veil appearance</string><string name="veil_style">Veil style</string><string name="opacity_value">Veil opacity · %1$d%%</string>
+    <string name="color_black">Black</string><string name="color_gray">Dark gray</string><string name="color_purple">Deep purple</string>
+    <string name="screen_opacity_value">Whole-screen opacity · %1$d%%</string>
+    <string name="choose_photo">Choose photo</string><string name="clear_photo">Clear photo</string>
+    <string name="touch_title">Use the app underneath</string><string name="touch_detail">Touches pass through; hold the control to peek. On Android 12 and later, opacity is limited to 80%% in this mode.</string>
+    <string name="offset_value">Keyboard offset · %1$d dp</string><string name="control_title">Control</string><string name="position">Starting position</string>
+    <string name="start">Start</string><string name="center">Center</string><string name="end">End</string><string name="shape">Shape</string><string name="capsule">Capsule</string><string name="soft">Soft</string><string name="sharp">Sharp</string>
+    <string name="control_size">Control size · %1$d%%</string><string name="control_opacity">Control opacity · %1$d%%</string><string name="control_color">Control color</string>
+    <string name="violet">Violet</string><string name="sage">Sage</string><string name="amber">Amber</string><string name="rose">Rose</string>
+    <string name="motion">Motion speed</string><string name="instant">Instant</string><string name="fast">Fast</string><string name="normal">Normal</string><string name="slow">Slow</string>
+    <string name="automation">Automation</string><string name="app_rules">App rules</string><string name="app_rules_detail">Choose one rule for each app. Manual screen cover remains available independently.</string><string name="search_apps">Search apps</string>
+    <string name="auto_default">Automatically veil by default</string><string name="auto_default_detail">Cover the screen when a keyboard opens unless an app has a different rule.</string>
+    <string name="rule_default">Default</string><string name="rule_auto">Auto veil</string><string name="rule_full">Whole screen</string><string name="rule_skip">Skip</string>
+    <string name="schedule">Schedule</string><string name="schedule_detail">Limit automatic rules to the days and times you choose. Manual controls still work.</string><string name="schedule_enabled">Use a schedule</string><string name="schedule_overnight">An overnight period belongs to the day it starts.</string>
+    <string name="mon">M</string><string name="tue">T</string><string name="wed">W</string><string name="thu">T</string><string name="fri">F</string><string name="sat">S</string><string name="sun">S</string>
+    <string name="start_time">Starts · %1$02d:%2$02d</string><string name="end_time">Ends · %1$02d:%2$02d</string><string name="all_day_hint">Equal start and end times mean all day.</string>
+    <string name="start_boot">Start after restart</string><string name="start_boot_detail">Restore the armed service after your device restarts.</string>
+    <string name="quick_settings">Quick Settings</string><string name="add_arm_tile">Add arm tile</string><string name="add_screen_tile">Add screen veil tile</string><string name="back">‹ Back</string>
+    <string name="disclosure_title">Accessibility access</string><string name="disclosure_why">Why it is needed</string>
+    <string name="disclosure_detail">VeilType observes top-level window types and bounds to find the keyboard, and the foreground app name to apply your app rules. A separate display-over-apps permission lets it draw the veil.</string>
+    <string name="disclosure_privacy_title">Your information stays private</string><string name="disclosure_privacy_detail">VeilType does not read screen content, typed text, passwords, clipboard data or screenshots. Your settings, app rules and selected photo reference stay on this device. VeilType has no internet permission.</string>
+    <string name="disclosure_system">Android will show a broad warning because accessibility access is powerful. You can revoke it in Settings at any time.</string><string name="disclosure_consent">I understand and choose to enable this access.</string><string name="disclosure_continue">Continue to Android Settings</string><string name="not_now">Not now</string>
+</resources>
