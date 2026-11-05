@@ -15,3 +15,4 @@ The app has no internet permission. Accessibility observes top-level keyboard wi
 The Android overlay and accessibility mechanisms vary by device and keyboard. See [limitations](docs/LIMITATIONS.md) and the [device test matrix](docs/TEST_MATRIX.md). Store distribution requires accessibility and foreground-service policy review.
 
 For local emulator commands, see [local AVD testing](docs/LOCAL_AVD_TESTING.md).
+For upload signing and Play Console prerequisites, see [Play Console preparation](docs/PLAY_CONSOLE_RELEASE.md).

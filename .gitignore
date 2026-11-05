@@ -6,3 +6,9 @@ local.properties
 **/build/
 captures/
 .DS_Store
+# Never commit Android upload keys or credentials.
+*.jks
+*.keystore
+*.p12
+*.pfx
+keystore.properties

@@ -29,6 +29,8 @@ data class MainUiState(
     val serviceConnected: Boolean = false,
     val overlayAllowed: Boolean = false,
     val serviceRunning: Boolean = false,
+    val keyboardVisible: Boolean = false,
+    val controlVisible: Boolean = false,
 )
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -39,10 +41,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val uiState = combine(
         repository.settings,
         accessibilityEnabled,
-        VeilAccessibilityService.connected,
+        VeilAccessibilityService.snapshot,
         overlayAllowed,
-        VeilForegroundService.running,
-    ) { settings, access, connected, overlay, running -> MainUiState(settings, access, connected, overlay, running) }
+        combine(VeilForegroundService.running, VeilForegroundService.controlVisible) { running, control -> running to control },
+    ) { settings, access, snapshot, overlay, service -> MainUiState(settings, access, snapshot.connected, overlay, service.first, snapshot.keyboard != null, service.second) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MainUiState())
 
     fun refreshPermission() { accessibilityEnabled.value = AccessibilityStatus.isEnabled(getApplication()); overlayAllowed.value = Settings.canDrawOverlays(getApplication()) }

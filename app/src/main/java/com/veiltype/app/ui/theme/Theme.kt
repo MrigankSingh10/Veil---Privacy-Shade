@@ -1,21 +1,12 @@
 package com.veiltype.app.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-
-private val LightColors = lightColorScheme(
-    primary = Color(0xFF6546A8),
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFEBDDFF),
-    onPrimaryContainer = Color(0xFF24005B),
-    secondary = Color(0xFF625B70),
-    background = Color(0xFFFFF8FF),
-    surface = Color(0xFFFFF8FF),
-)
 
 private val DarkColors = darkColorScheme(
     primary = Color(0xFFD1BCFF),
@@ -29,8 +20,12 @@ private val DarkColors = darkColorScheme(
 
 @Composable
 fun VeilTypeTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = DarkColors,
-        content = content,
-    )
+    MaterialTheme(colorScheme = DarkColors) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground,
+            content = content,
+        )
+    }
 }

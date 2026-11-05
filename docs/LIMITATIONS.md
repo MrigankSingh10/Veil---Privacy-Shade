@@ -1,6 +1,7 @@
 # Known limitations
 
 - Keyboard visibility and foreground-app detection depend on accessibility window metadata. Floating, split, handwriting and OEM keyboards may report unusual bounds, and system surfaces or multi-window modes may behave differently.
+- While armed, VeilType periodically rechecks the keyboard window to recover from missed accessibility events. The Setup screen reports whether Android exposes a keyboard window; this has not yet been verified on Samsung hardware.
 - The veil deters casual observation; it cannot prevent screenshots, screen readers, cameras or privileged software. Content may be visible before the overlay appears.
 - Android may stop background services or restrict foreground-service startup after reboot. VeilType cannot grant its own permissions; users can re-arm it from Setup if needed.
 - Touch-through overlay opacity is capped on Android 12 and later. Other overlay apps can also cause Android to block touches beneath combined obscuring windows.

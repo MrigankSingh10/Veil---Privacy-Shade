@@ -2,6 +2,7 @@ package com.veiltype.app.ui.screens
 
 import android.app.TimePickerDialog
 import android.content.Intent
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,13 +30,19 @@ import com.veiltype.app.ui.MainViewModel
 import java.util.Locale
 import kotlin.math.roundToInt
 
-private enum class Destination { SETUP, TUNING, APPS, SCHEDULE }
+private enum class Destination { SETUP, TUNING, APPS, SCHEDULE, PRIVACY }
 
 @Composable
-fun VeilAppScreen(state: MainUiState, vm: MainViewModel, onDisclosure: () -> Unit, onAccessibility: () -> Unit, onOverlay: () -> Unit, onNotifications: () -> Unit, onPhoto: () -> Unit, onTile: (Boolean) -> Unit) {
+fun VeilAppScreen(state: MainUiState, vm: MainViewModel, onDisclosure: () -> Unit, onAccessibility: () -> Unit, onAppInfo: () -> Unit, onOverlay: () -> Unit, onNotifications: () -> Unit, onPhoto: () -> Unit, onTile: (Boolean) -> Unit) {
     var page by remember { mutableStateOf(Destination.SETUP) }
     var step by remember { mutableIntStateOf(0) }
-    BackHandler(enabled = page != Destination.SETUP) { page = if (page == Destination.TUNING) Destination.SETUP else Destination.TUNING }
+    BackHandler(enabled = page != Destination.SETUP) { page = if (page == Destination.TUNING || page == Destination.PRIVACY) Destination.SETUP else Destination.TUNING }
+    if (!state.settings.onboardingComplete && page == Destination.PRIVACY) {
+        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).systemBarsPadding().verticalScroll(rememberScrollState()).padding(22.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            PrivacyPolicy { page = Destination.SETUP }
+        }
+        return
+    }
     if (!state.settings.onboardingComplete) {
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).systemBarsPadding().padding(28.dp), verticalArrangement = Arrangement.Center) {
             Text(stringResource(R.string.brand), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
@@ -45,20 +52,22 @@ fun VeilAppScreen(state: MainUiState, vm: MainViewModel, onDisclosure: () -> Uni
             Text(stringResource(listOf(R.string.walk_body_1, R.string.walk_body_2, R.string.walk_body_3)[step]), style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.height(40.dp))
             Button(onClick = { if (step < 2) step++ else onDisclosure() }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(if (step < 2) R.string.next else R.string.get_started)) }
+            OutlinedButton(onClick = { page = Destination.PRIVACY }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.privacy_policy)) }
         }
         return
     }
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).systemBarsPadding()) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 14.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.brand), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-            Row { Text(stringResource(R.string.setup), Modifier.clickable { page = Destination.SETUP }.padding(10.dp), color = if (page == Destination.SETUP) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant); Text(stringResource(R.string.tuning), Modifier.clickable { page = Destination.TUNING }.padding(10.dp), color = if (page != Destination.SETUP) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant) }
+            Row { Text(stringResource(R.string.setup), Modifier.clickable { page = Destination.SETUP }.padding(10.dp), color = if (page == Destination.SETUP) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant); Text(stringResource(R.string.tuning), Modifier.clickable { page = Destination.TUNING }.padding(10.dp), color = if (page in setOf(Destination.TUNING, Destination.APPS, Destination.SCHEDULE)) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant) }
         }
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 22.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             when (page) {
-                Destination.SETUP -> Setup(state, vm, onAccessibility, onOverlay, onNotifications)
+                Destination.SETUP -> Setup(state, vm, onAccessibility, onAppInfo, onOverlay, onNotifications) { page = Destination.PRIVACY }
                 Destination.TUNING -> Tuning(state, vm, onPhoto, onTile, { page = Destination.APPS }, { page = Destination.SCHEDULE })
                 Destination.APPS -> Apps(state, vm) { page = Destination.TUNING }
                 Destination.SCHEDULE -> ScheduleEditor(state.settings.schedule, vm::setSchedule) { page = Destination.TUNING }
+                Destination.PRIVACY -> PrivacyPolicy { page = Destination.SETUP }
             }
             Spacer(Modifier.height(36.dp))
         }
@@ -79,23 +88,45 @@ fun VeilAppScreen(state: MainUiState, vm: MainViewModel, onDisclosure: () -> Uni
     }
 }
 
-@Composable private fun Setup(state: MainUiState, vm: MainViewModel, access: () -> Unit, overlay: () -> Unit, notifications: () -> Unit) {
+@Composable private fun Setup(state: MainUiState, vm: MainViewModel, access: () -> Unit, appInfo: () -> Unit, overlay: () -> Unit, notifications: () -> Unit, privacy: () -> Unit) {
     Heading(stringResource(R.string.setup_title), stringResource(R.string.setup_body))
     Section(stringResource(R.string.permissions))
     CardRow(stringResource(R.string.overlay_title), stringResource(R.string.overlay_detail)) { OutlinedButton(onClick = overlay) { Text(stringResource(if (state.overlayAllowed) R.string.ready else R.string.allow)) } }
     CardRow(stringResource(R.string.keyboard_title), stringResource(R.string.keyboard_detail)) { OutlinedButton(onClick = access) { Text(stringResource(if (state.accessibilityEnabled) R.string.ready else R.string.allow)) } }
+    if (!state.accessibilityEnabled && Build.VERSION.SDK_INT >= 33) {
+        Text(stringResource(R.string.restricted_settings_help), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        OutlinedButton(onClick = appInfo, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.open_app_info)) }
+    }
+    if (state.accessibilityEnabled && !state.serviceConnected) {
+        Text(stringResource(R.string.accessibility_waiting), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+    }
     CardRow(stringResource(R.string.notifications_title), stringResource(R.string.notifications_detail)) { OutlinedButton(onClick = notifications) { Text(stringResource(R.string.open)) } }
     Section(stringResource(R.string.protection))
-    CardRow(stringResource(if (state.serviceRunning) R.string.armed else R.string.arm), stringResource(if (state.serviceRunning) R.string.armed_detail else R.string.arm_detail)) { val label = stringResource(R.string.arm); Switch(checked = state.settings.enabled && state.serviceRunning, onCheckedChange = vm::setEnabled, enabled = state.overlayAllowed && state.accessibilityEnabled, modifier = Modifier.semantics { contentDescription = label }) }
+    CardRow(stringResource(if (state.serviceRunning) R.string.armed else R.string.arm), stringResource(if (state.serviceRunning && !state.serviceConnected) R.string.accessibility_waiting else if (state.serviceRunning) R.string.armed_detail else R.string.arm_detail)) { val label = stringResource(R.string.arm); Switch(checked = state.settings.enabled && state.serviceRunning, onCheckedChange = vm::setEnabled, enabled = state.serviceRunning || (state.overlayAllowed && state.accessibilityEnabled && state.serviceConnected), modifier = Modifier.semantics { contentDescription = label }) }
     if (state.settings.enabled && !state.serviceRunning) Text(stringResource(R.string.restart_hint), style = MaterialTheme.typography.bodySmall)
+    if (state.serviceRunning && state.serviceConnected) Text(stringResource(when { state.keyboardVisible && state.controlVisible -> R.string.keyboard_detected; state.keyboardVisible -> R.string.keyboard_detected_control_hidden; else -> R.string.keyboard_not_detected }), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     Section(stringResource(R.string.try_title))
     Text(stringResource(R.string.try_body), color = MaterialTheme.colorScheme.onSurfaceVariant)
     var text by remember { mutableStateOf("") }
     OutlinedTextField(text, { text = it }, modifier = Modifier.fillMaxWidth(), placeholder = { Text(stringResource(R.string.try_placeholder)) })
     Section(stringResource(R.string.privacy))
     Text(stringResource(R.string.privacy_body), style = MaterialTheme.typography.bodyMedium)
+    OutlinedButton(onClick = privacy, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.privacy_policy)) }
     OutlinedButton(onClick = vm::replayOnboarding, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.replay)) }
     Text(stringResource(R.string.support), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+}
+
+@Composable private fun PrivacyPolicy(back: () -> Unit) {
+    Text(stringResource(R.string.back), Modifier.clickable(onClick = back).padding(vertical = 8.dp))
+    Heading(stringResource(R.string.privacy_policy), stringResource(R.string.privacy_updated))
+    Section(stringResource(R.string.privacy_information_title))
+    Text(stringResource(R.string.privacy_information_body))
+    Section(stringResource(R.string.privacy_permissions_title))
+    Text(stringResource(R.string.privacy_permissions_body))
+    Section(stringResource(R.string.privacy_retention_title))
+    Text(stringResource(R.string.privacy_retention_body))
+    Section(stringResource(R.string.privacy_contact_title))
+    Text(stringResource(R.string.privacy_contact_body))
 }
 
 @Composable private fun Tuning(state: MainUiState, vm: MainViewModel, photo: () -> Unit, tile: (Boolean) -> Unit, apps: () -> Unit, schedule: () -> Unit) {

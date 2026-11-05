@@ -25,6 +25,12 @@
     <string name="permissions">Access</string><string name="overlay_title">Display over other apps</string>
     <string name="overlay_detail">Lets VeilType place the cover and control above other apps.</string>
     <string name="keyboard_title">Keyboard awareness</string><string name="keyboard_detail">Detects the keyboard and foreground app without reading their content.</string>
+    <string name="restricted_settings_help">If Android says access was denied, open App info, tap the three-dot menu, and choose Allow restricted settings. Then return here and enable keyboard awareness.</string>
+    <string name="open_app_info">Open VeilType app info</string>
+    <string name="accessibility_waiting">Keyboard awareness is enabled but Android has not connected it. Open accessibility settings and switch VeilType off and on again.</string>
+    <string name="keyboard_detected">Keyboard detected. The Veil control should appear near it.</string>
+    <string name="keyboard_not_detected">Waiting for a keyboard. Tap the field below to test detection.</string>
+    <string name="keyboard_detected_control_hidden">Keyboard detected, but the control is hidden. Check display-over-apps access, app rules, and whether you dismissed the control; close and reopen the keyboard to retry.</string>
     <string name="ready">Ready</string><string name="allow">Allow</string><string name="open">Open</string>
     <string name="notifications_title">Notifications</string><string name="notifications_detail">Provides controls while VeilType is armed.</string>
     <string name="protection">Protection</string><string name="armed">Veil armed</string><string name="arm">Arm the veil</string>
@@ -32,6 +38,16 @@
     <string name="restart_hint">The service is stopped. Turn it on again when access is ready.</string>
     <string name="try_title">Try it here</string><string name="try_body">Arm the veil, tap the field, then use the control on your keyboard.</string><string name="try_placeholder">Write something private…</string>
     <string name="privacy">Your privacy</string><string name="privacy_body">VeilType works offline. Accessibility access observes keyboard window bounds and the foreground app for your rules. It never reads screen or typed text. Preferences, app rules and your chosen photo reference stay on this device. A veil is a visual aid, not protection against screenshots or cameras.</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="privacy_updated">Last updated: 2 November 2026</string>
+    <string name="privacy_information_title">Information VeilType uses</string>
+    <string name="privacy_information_body">VeilType provides an optional privacy veil over other apps. When you enable its Android accessibility service, it observes top-level keyboard window type and bounds and the foreground app’s package name. It uses this information on your device to position the veil and apply app rules. VeilType does not traverse accessibility nodes or read text displayed or typed in other apps.\n\nVeilType stores your settings, including app rules, schedules, appearance and control position, on your device. If you choose a photo, it stores a reference and uses Android document access to display the photo. The original stays with its document provider. Android may retain document access grants until revoked or the app is uninstalled.\n\nVeilType has no internet permission and does not include accounts, advertising or analytics. It does not send this information to the developer.</string>
+    <string name="privacy_permissions_title">Permissions and your choices</string>
+    <string name="privacy_permissions_body">Accessibility and display-over-other-apps access require your action in Android settings. VeilType uses them to detect the keyboard and draw the veil. You can disarm VeilType or revoke access in Android settings. Notification access controls visibility of service controls, subject to Android’s behavior. Optional boot access can restore the armed service if you enable it.</string>
+    <string name="privacy_retention_title">Retention and deletion</string>
+    <string name="privacy_retention_body">Preferences and app rules remain on your device until changed, the app’s data is cleared, or the app is uninstalled. Uninstalling removes local app data and Android document grants; it does not delete the original photo. A veil is a visual privacy aid and does not prevent screenshots, screen readers or cameras from capturing content.</string>
+    <string name="privacy_contact_title">Contact and changes</string>
+    <string name="privacy_contact_body">For questions about VeilType and this policy, contact support.fintrace@gmail.com. The developer may update this policy when the app or its data practices change.</string>
     <string name="replay">Replay walkthrough</string><string name="support">If the control does not appear, check both access settings and your device’s background restrictions.</string>
     <string name="tuning_title">Make it yours.</string><string name="tuning_body">Adjust the veil, its control, and where it appears.</string>
     <string name="veil_appearance">Veil appearance</string><string name="veil_style">Veil style</string><string name="opacity_value">Veil opacity · %1$d%%</string>

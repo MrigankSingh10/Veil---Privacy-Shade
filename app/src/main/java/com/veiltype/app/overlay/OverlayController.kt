@@ -44,6 +44,7 @@ class OverlayController(
     private val close = TextView(context)
     private var coverAdded = false
     private var controlAdded = false
+    val isControlVisible: Boolean get() = controlAdded
     private var lastPhoto = ""
     private var settings = VeilSettings()
     private var mode = OverlayMode.HIDDEN

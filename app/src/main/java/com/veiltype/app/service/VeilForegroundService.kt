@@ -49,7 +49,7 @@ class VeilForegroundService : Service() {
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             locked = intent?.action == Intent.ACTION_SCREEN_OFF
-            if (locked) { manualKeyboard = false; manualFullScreen = false; overlay.removeAll() }
+            if (locked) { manualKeyboard = false; manualFullScreen = false; overlay.removeAll(); controlVisible.value = false }
             else evaluate()
         }
     }
@@ -84,7 +84,7 @@ class VeilForegroundService : Service() {
     }
     private fun evaluate() {
         if (!::overlay.isInitialized) return
-        if (!Settings.canDrawOverlays(this)) { overlay.removeAll(); stopSelf(); return }
+        if (!Settings.canDrawOverlays(this)) { overlay.removeAll(); controlVisible.value = false; stopSelf(); return }
         val now = LocalDateTime.now()
         val safe = !locked && !getSystemService(KeyguardManager::class.java).isKeyguardLocked && getSystemService(PowerManager::class.java).isInteractive && snapshot.foreground !in BLOCKED
         val rule = settings.appRules[snapshot.foreground] ?: AppRule.DEFAULT
@@ -92,6 +92,7 @@ class VeilForegroundService : Service() {
         shownMode = decision.mode
         fullScreenActive.value = decision.mode == OverlayMode.FULL_SCREEN
         overlay.render(settings, decision.mode, snapshot.keyboard, decision.showControl)
+        controlVisible.value = overlay.isControlVisible
     }
     private fun notification(): Notification {
         val open = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
@@ -105,6 +106,7 @@ class VeilForegroundService : Service() {
         if (::overlay.isInitialized) overlay.removeAll()
         runCatching { unregisterReceiver(screenReceiver) }
         running.value = false
+        controlVisible.value = false
         fullScreenActive.value = false
         scope.cancel()
         super.onDestroy()
@@ -117,6 +119,7 @@ class VeilForegroundService : Service() {
         const val ACTION_FULL_SCREEN = "com.veiltype.app.FULL_SCREEN"
         private const val CHANNEL = "veil_service"
         val running = MutableStateFlow(false)
+        val controlVisible = MutableStateFlow(false)
         val fullScreenActive = MutableStateFlow(false)
         private val BLOCKED = setOf("android", "com.android.systemui", "com.android.permissioncontroller", "com.google.android.permissioncontroller")
         fun start(context: Context, action: String = ACTION_ARM) {
