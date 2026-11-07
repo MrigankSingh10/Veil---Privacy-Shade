@@ -1,6 +1,6 @@
-# VeilType privacy policy — draft
+# VeilType privacy policy — superseded draft
 
-**Not ready to publish:** Confirm the release's actual behavior and SDKs, review the policy for your situation, and host the final version at a public URL. A matching policy is available in the app; keep both copies synchronized after review.
+This earlier draft is retained for reference. The current policy is [privacy-policy.html](privacy-policy.html); keep that page and the in-app policy synchronized.
 
 Last updated: 2 November 2026.
 

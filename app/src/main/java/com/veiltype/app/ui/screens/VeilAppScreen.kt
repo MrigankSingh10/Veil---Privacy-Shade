@@ -123,6 +123,8 @@ fun VeilAppScreen(state: MainUiState, vm: MainViewModel, onDisclosure: () -> Uni
     Text(stringResource(R.string.privacy_information_body))
     Section(stringResource(R.string.privacy_permissions_title))
     Text(stringResource(R.string.privacy_permissions_body))
+    Section(stringResource(R.string.privacy_security_title))
+    Text(stringResource(R.string.privacy_security_body))
     Section(stringResource(R.string.privacy_retention_title))
     Text(stringResource(R.string.privacy_retention_body))
     Section(stringResource(R.string.privacy_contact_title))
