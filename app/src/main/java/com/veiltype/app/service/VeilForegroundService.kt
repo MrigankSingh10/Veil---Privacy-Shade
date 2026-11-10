@@ -103,7 +103,7 @@ class VeilForegroundService : Service() {
     }
     override fun onDestroy() {
         tick.removeCallbacksAndMessages(null)
-        if (::overlay.isInitialized) overlay.removeAll()
+        if (::overlay.isInitialized) overlay.dispose()
         runCatching { unregisterReceiver(screenReceiver) }
         running.value = false
         controlVisible.value = false

@@ -24,61 +24,84 @@ class VeilAccessibilityService : AccessibilityService() {
     private val detector = AccessibilityKeyboardDetector()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var foreground: String? = null
-    private val refresh = Runnable {
+    private val pendingForeground = ForegroundEventQueue()
+    private val foregroundWindows = ForegroundWindowMemory()
+    private val refreshScheduler = WindowRefreshScheduler(
+        post = { task, delay -> handler.postDelayed(task, delay) },
+        remove = { handler.removeCallbacks(it) },
+        refresh = { refreshWindows() },
+    )
+
+    private fun refreshWindows() {
         val current = runCatching { windows.orEmpty() }.getOrDefault(emptyList())
-        snapshot.value = WindowSnapshot(detector.detect(current).bounds, foreground, true)
-        connected.value = true
-    }
-    private val periodic = object : Runnable {
-        override fun run() {
-            if (VeilForegroundService.running.value) {
-                scheduleRefresh()
-                handler.postDelayed(this, 2_000)
-            }
-        }
-    }
-
-    private fun scheduleRefresh() {
-        // Coalesce bursts without continually postponing detection while windows animate.
-        if (!handler.hasCallbacks(refresh)) handler.postDelayed(refresh, 50)
-    }
-
-    override fun onServiceConnected() {
-        super.onServiceConnected()
-        connected.value = true
-        handler.post(refresh)
-        scope.launch {
-            VeilForegroundService.running.collect { running ->
-                handler.removeCallbacks(periodic)
-                if (running) handler.post(periodic)
-            }
-        }
-    }
-
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED && event.packageName != null) {
-            val window = runCatching { windows.orEmpty().firstOrNull { it.id == event.windowId } }.getOrNull()
-            val pkg = event.packageName.toString()
-            val imePackage = Settings.Secure.getString(contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)?.substringBefore('/')
+        val imePackage = if (pendingForeground.isNotEmpty) Settings.Secure.getString(contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)?.substringBefore('/') else null
+        pendingForeground.drain().forEach { (pkg, windowId) ->
+            val window = current.firstOrNull { it.id == windowId }
             val kind = when (window?.type) {
                 AccessibilityWindowInfo.TYPE_APPLICATION -> WindowKind.APPLICATION
                 AccessibilityWindowInfo.TYPE_INPUT_METHOD -> WindowKind.KEYBOARD
                 null -> WindowKind.UNKNOWN
                 else -> WindowKind.OTHER
             }
-            // System UI emits window-state events during IME transitions too. Only treat
-            // its window as the foreground surface when it is active/focused; otherwise
-            // a navigation-bar event can keep the control hidden after the keyboard opens.
             val protectedForeground = pkg in protectedPackages &&
                 (window == null || window.isActive || window.isFocused || pkg in permissionPackages)
-            if (ForegroundEventFilter.shouldTrack(pkg, packageName, imePackage, kind, protectedForeground)) foreground = pkg
+            if (ForegroundEventFilter.shouldTrack(pkg, packageName, imePackage, kind, protectedForeground)) {
+                foreground = pkg
+                if (kind == WindowKind.APPLICATION) foregroundWindows.remember(windowId, pkg)
+            }
         }
-        scheduleRefresh()
+        val activeApps = current.filter { it.type == AccessibilityWindowInfo.TYPE_APPLICATION && (it.isActive || it.isFocused) }
+        val protectedApp = activeApps.firstOrNull { foregroundWindows.resolve(it.id, false) in protectedPackages }
+        val activeApp = protectedApp ?: activeApps.firstOrNull { it.isFocused } ?: activeApps.firstOrNull()
+        val protectedSurfaceActive = current.any {
+            it.type != AccessibilityWindowInfo.TYPE_APPLICATION && it.type != AccessibilityWindowInfo.TYPE_INPUT_METHOD &&
+                (it.isActive || it.isFocused) && it.type != AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY
+        }
+        foregroundWindows.resolve(activeApp?.id, protectedSurfaceActive)?.let { foreground = it }
+        snapshot.value = WindowSnapshot(detector.detect(current).bounds, foreground, true)
+        connected.value = true
+    }
+    private val periodic = object : Runnable {
+        override fun run() {
+            if (VeilForegroundService.running.value) {
+                refreshScheduler.request()
+                handler.postDelayed(this, 2_000)
+            }
+        }
     }
 
-    override fun onInterrupt() { handler.removeCallbacks(refresh); snapshot.value = WindowSnapshot(); connected.value = false }
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        connected.value = true
+        refreshScheduler.immediate()
+        scope.launch {
+            VeilForegroundService.running.collect { running ->
+                handler.removeCallbacks(periodic)
+                if (running) { handler.post(periodic); refreshScheduler.transition() }
+                else refreshScheduler.cancel()
+            }
+        }
+    }
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED && event.packageName != null) {
+            val pkg = event.packageName.toString()
+            pendingForeground.add(pkg, event.windowId)
+            // Protected system surfaces must not wait behind an app-transition burst.
+            if (pkg in protectedPackages) {
+                refreshScheduler.immediate()
+                if (VeilForegroundService.running.value) refreshScheduler.transition()
+                return
+            }
+        }
+        if (VeilForegroundService.running.value) refreshScheduler.transition() else refreshScheduler.request()
+    }
+
+    override fun onInterrupt() { refreshScheduler.cancel(); handler.removeCallbacks(periodic); pendingForeground.clear(); foregroundWindows.clear(); foreground = null; snapshot.value = WindowSnapshot(); connected.value = false }
     override fun onDestroy() {
         handler.removeCallbacksAndMessages(null)
+        refreshScheduler.cancel()
+        foregroundWindows.clear()
         scope.cancel()
         snapshot.value = WindowSnapshot()
         connected.value = false
